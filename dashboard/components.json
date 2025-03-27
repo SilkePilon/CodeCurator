@@ -1,0 +1,39 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "app/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils"
+  },
+  "registryDependencies": [
+    "button",
+    "card",
+    "dialog",
+    "input",
+    "label",
+    "select",
+    "separator",
+    "sheet",
+    "table",
+    "tabs",
+    "badge",
+    "avatar",
+    "dropdown-menu",
+    "sidebar",
+    "toggle-group",
+    "checkbox",
+    "command",
+    "textarea",
+    "switch",
+    "tooltip"
+  ]
+}
+
