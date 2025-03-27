@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { AIAssistantDialog } from "./ai-assistant-dialog"
 import { CommandSearch } from "./command-search"
+import { ThemeToggle } from "./theme-toggle"
 
 export function SiteHeader() {
   const pathname = usePathname()
@@ -44,6 +45,7 @@ export function SiteHeader() {
         </motion.h1>
         <div className="ml-auto flex items-center gap-2">
           <CommandSearch />
+          <ThemeToggle />
           <AIAssistantDialog />
         </div>
       </div>
