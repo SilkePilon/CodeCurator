@@ -17,6 +17,37 @@ import {
 } from "@/components/ui/command"
 import { toast } from "sonner"
 
+// Import data fetching utilities
+import { useEffect, useState } from "react"
+
+// Define types for our data
+interface Repository {
+  id: number
+  name: string
+  platform: string
+  description: string
+}
+
+interface Issue {
+  id: number
+  title: string
+  repository: string
+  status: string
+}
+
+interface PullRequest {
+  id: number
+  title: string
+  repository: string
+  status: string
+}
+
+interface TeamMember {
+  id: number
+  name: string
+  role: string
+}
+
 // Create a store to manage the command dialog state
 type CommandStore = {
   open: boolean
@@ -56,6 +87,41 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
   const router = useRouter()
   const commandStore = useCommandStore()
 
+  // State for storing data
+  const [repositories, setRepositories] = useState<Repository[]>([])
+  const [issues, setIssues] = useState<Issue[]>([])
+  const [pullRequests, setPullRequests] = useState<PullRequest[]>([])
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
+    { id: 1, name: "Sarah Chen", role: "Frontend Developer" },
+    { id: 2, name: "Eddie Lake", role: "Backend Developer" },
+    { id: 3, name: "Jamik Tashpulatov", role: "DevOps Engineer" },
+    { id: 4, name: "Raj Patel", role: "Full Stack Developer" },
+    { id: 5, name: "Thomas Wilson", role: "Database Engineer" },
+    { id: 6, name: "Maya Johnson", role: "UI/UX Designer" },
+    { id: 7, name: "Leila Ahmadi", role: "Frontend Developer" },
+  ])
+  
+  // Fetch data when component mounts
+  useEffect(() => {
+    // Fetch repositories
+    fetch('/dashboard/repositories.json')
+      .then(res => res.json())
+      .then(data => setRepositories(data))
+      .catch(err => console.error("Error fetching repositories:", err))
+      
+    // Fetch issues
+    fetch('/issues/data.json')
+      .then(res => res.json())
+      .then(data => setIssues(data))
+      .catch(err => console.error("Error fetching issues:", err))
+      
+    // Fetch pull requests (using dashboard data)
+    fetch('/dashboard/data.json')
+      .then(res => res.json())
+      .then(data => setPullRequests(data))
+      .catch(err => console.error("Error fetching pull requests:", err))
+  }, [])
+
   // Sync the local state with the store
   React.useEffect(() => {
     const originalSetOpen = commandStore.setOpen
@@ -87,35 +153,6 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
     setOpen(false)
     command()
   }, [])
-
-  // Sample repositories data
-  const repositories = [
-    { id: 1, name: "frontend/user-portal", platform: "GitHub" },
-    { id: 2, name: "backend/api", platform: "GitLab" },
-    { id: 3, name: "backend/auth-service", platform: "GitHub" },
-    { id: 4, name: "frontend/admin-portal", platform: "GitLab" },
-  ]
-
-  // Sample issues data
-  const issues = [
-    { id: 1, title: "Login page crashes on mobile devices", repository: "frontend/user-portal" },
-    { id: 2, title: "Add support for OAuth 2.0 login", repository: "frontend/user-portal" },
-    { id: 3, title: "Database queries timeout on large datasets", repository: "backend/api" },
-  ]
-
-  // Sample pull requests data
-  const pullRequests = [
-    { id: 1, title: "Fix authentication bug in login flow", repository: "frontend/user-portal" },
-    { id: 2, title: "Add dark mode support to dashboard", repository: "frontend/user-portal" },
-    { id: 3, title: "Optimize database queries for user search", repository: "backend/api" },
-  ]
-
-  // Sample team members data
-  const teamMembers = [
-    { id: 1, name: "Sarah Chen", role: "Frontend Developer" },
-    { id: 2, name: "Eddie Lake", role: "Backend Developer" },
-    { id: 3, name: "Jamik Tashpulatov", role: "DevOps Engineer" },
-  ]
 
   return (
     <>
@@ -156,10 +193,10 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Repositories">
-            {repositories.map((repo) => (
+            {repositories.slice(0, 5).map((repo) => (
               <CommandItem
                 key={repo.id}
-                onSelect={() => runCommand(() => router.push(`/dashboard?search=${encodeURIComponent(repo.name)}`))}
+                onSelect={() => runCommand(() => router.push(`/dashboard?repo=${encodeURIComponent(repo.name)}`))}
               >
                 <FolderIcon className="mr-2 h-4 w-4" />
                 <span>{repo.name}</span>
@@ -169,7 +206,7 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Issues">
-            {issues.map((issue) => (
+            {issues.slice(0, 5).map((issue) => (
               <CommandItem
                 key={issue.id}
                 onSelect={() => runCommand(() => router.push(`/issues?repo=${encodeURIComponent(issue.repository)}`))}
@@ -182,7 +219,7 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Pull Requests">
-            {pullRequests.map((pr) => (
+            {pullRequests.slice(0, 5).map((pr) => (
               <CommandItem
                 key={pr.id}
                 onSelect={() =>
@@ -197,7 +234,7 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Team Members">
-            {teamMembers.map((member) => (
+            {teamMembers.slice(0, 5).map((member) => (
               <CommandItem key={member.id} onSelect={() => runCommand(() => router.push("/team"))}>
                 <UsersIcon className="mr-2 h-4 w-4" />
                 <span>{member.name}</span>
@@ -211,7 +248,7 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
               onSelect={() =>
                 runCommand(() => {
                   toast.success("Creating new repository...")
-                  // You could trigger the new repository dialog here
+                  document.dispatchEvent(new CustomEvent('open-new-repository-dialog'))
                 })
               }
             >
@@ -222,7 +259,7 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
               onSelect={() =>
                 runCommand(() => {
                   toast.success("Creating new issue...")
-                  // You could trigger the new issue dialog here
+                  document.dispatchEvent(new CustomEvent('open-new-issue-dialog'))
                 })
               }
             >
@@ -233,7 +270,7 @@ export function CommandSearch({ ...props }: CommandSearchProps) {
               onSelect={() =>
                 runCommand(() => {
                   toast.success("Creating new pull request...")
-                  // You could trigger the new PR dialog here
+                  document.dispatchEvent(new CustomEvent('open-new-pull-request-dialog'))
                 })
               }
             >
