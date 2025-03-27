@@ -99,7 +99,7 @@ export function AIAssistantDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="hidden md:flex">
+        <Button variant="outline" className="relative h-9 w-auto hidden md:flex">
           <BrainCircuitIcon className="mr-2 h-4 w-4" />
           Ask AI Assistant
         </Button>
