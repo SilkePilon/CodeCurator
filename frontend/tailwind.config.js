@@ -89,6 +89,6 @@ export default {
       },
     },
   },
-  plugins: ["tailwindcss-animate", "@tailwindcss/container-queries"],
+  plugins: [],
 }
 
